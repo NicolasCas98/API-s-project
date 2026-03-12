@@ -1,3 +1,5 @@
+import { mapCharacterEpisodes } from "../utils/episode.js";
+
 const allowedProperties = [
   "firstname",
   "lastname",
@@ -17,64 +19,30 @@ const allowedProperties = [
  * Transform Rick & Morty character to HubSpot contact
  */
 
-export const transformCharacterToHubspot = (character, episodes) => {
+export const transformCharacterToHubspot = (character, episodeMap) => {
 
-  const nameParts = character.name.split(" ");
+  const [firstname, ...rest] = character.name.split(" ");
+  const lastname = rest.join(" ");
 
-  const firstname = nameParts[0] || "";
-  const lastname = nameParts.slice(1).join(" ") || "";
+  const episodes = mapCharacterEpisodes(character, episodeMap);
 
-  const episodeCount = character.episode?.length || 0;
+  const age = character.episode.length > 20 ? "Older" : "Young";
 
-  const age = episodeCount >= 20 ? "Older" : "Young";
-
-  const rawContact = {
-
-    firstname,
-    lastname,
-
-    gender_ch: character.gender,
-    species: character.species,
-    type: character.type || "Unknown",
-
-    status: character.status,
-
-    id_character: character.id,
-
-    origin_name: character.origin?.name || "",
-    location_name: character.location?.name || "",
-
-    image: character.image,
-
-    age,
-
-    episode: episodes
-
+  return {
+    properties: {
+      firstname: String(firstname || ""),
+      lastname: String(lastname || ""),
+      gender_ch: String(character.gender || ""),
+      species: String(character.species || ""),
+      type: String(character.type || ""),
+      origin_name: String(character.origin?.name || ""),
+      location_name: String(character.location?.name || ""),
+      episode: String(episodes || ""),
+      age: String(age),
+      status: String(character.status || ""),
+      id_character: String(character.id || ""),
+      image: String(character.image || "")
+    }
   };
-
-  const filteredContact = {};
-
-  for (const key of allowedProperties) {
-
-    if (rawContact[key] !== undefined) {
-
-      filteredContact[key] = rawContact[key];
-
-    }
-
-  }
-
-
-  Object.keys(filteredContact).forEach(key => {
-
-    if (filteredContact[key] === "" || filteredContact[key] === null) {
-
-      delete filteredContact[key];
-
-    }
-
-  });
-
-  return filteredContact;
 
 };

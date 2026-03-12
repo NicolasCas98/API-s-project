@@ -22,9 +22,7 @@ export const sendBatchToHubspot = async (contacts) => {
     const response = await axios.post(
       HUBSPOT_URL,
       {
-        inputs: contacts.map(contact => ({
-          properties: contact
-        }))
+        inputs: contacts
       },
       { headers }
     );
